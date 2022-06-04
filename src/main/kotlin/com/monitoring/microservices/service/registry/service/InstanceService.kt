@@ -1,7 +1,7 @@
 package com.monitoring.microservices.service.registry.service
 
-import org.springframework.stereotype.Service
+import com.monitoring.microservices.service.registry.model.dto.LaunchedInstanceDTO
 
-@Service
-class InstanceService {
+interface InstanceService {
+    fun addTarget(launchedInstanceDTO: LaunchedInstanceDTO): LaunchedInstanceDTO?
 }

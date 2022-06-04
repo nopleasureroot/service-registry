@@ -1,5 +1,7 @@
 package com.monitoring.microservices.service.registry.model.entity
 
+import com.fasterxml.jackson.annotation.JsonBackReference
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import javax.persistence.*
 
 @Entity
@@ -12,7 +14,7 @@ data class Target(
     @Column(name = "url")
     val url: String = "",
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "instance_uuid")
+    @ManyToOne
+    @JsonBackReference
     val instance: Instance? = null
 )
