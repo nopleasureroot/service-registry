@@ -1,11 +1,10 @@
 package com.monitoring.microservices.service.registry.service.impl
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.monitoring.microservices.service.registry.exception.ErrorCode
 import com.monitoring.microservices.service.registry.model.dto.LaunchedInstanceDTO
 import com.monitoring.microservices.service.registry.model.entity.Instance
 import com.monitoring.microservices.service.registry.exception.InstanceException
+import com.monitoring.microservices.service.registry.exception.RegistryException
 import com.monitoring.microservices.service.registry.model.request.LaunchBody
 import com.monitoring.microservices.service.registry.service.InstanceService
 import com.monitoring.microservices.service.registry.util.Constants
@@ -16,11 +15,11 @@ import java.net.http.HttpResponse
 @Service
 class InstanceServiceImpl (
     val loadBalancerServiceImpl: LoadBalancerServiceImpl,
-    val messengerServiceImpl: MessengerServiceImpl<LaunchBody>
+    val messengerServiceImpl: MessengerServiceImpl<LaunchBody>,
+    val registryServiceImpl: RegistryServiceImpl
 ): InstanceService
 {
     private val logger = LoggerFactory.getLogger(javaClass)
-    private val mapper = jacksonObjectMapper()
 
     override fun addTarget(launchedInstanceDTO: LaunchedInstanceDTO): LaunchedInstanceDTO? {
         val freeInstance: Instance? = loadBalancerServiceImpl.findFreeInstance()
@@ -31,7 +30,7 @@ class InstanceServiceImpl (
                 val launchBody = LaunchBody(
                     targets = launchedInstanceDTO.targets,
                     contextPath = freeInstance.path,
-                    freeInstance.port
+                    port = freeInstance.port
                 )
 
                 val response: HttpResponse<String>? = messengerServiceImpl.executePostRequest(
@@ -39,10 +38,16 @@ class InstanceServiceImpl (
                     url = "${Constants.DEV_URL_PATH}${launchBody.port}${launchBody.contextPath}"
                 )
 
-                return mapper.readValue<LaunchedInstanceDTO>(
-                    response?.body() ?:
-                    throw InstanceException(ErrorCode.ERR_INSTANCE_UNAVAILABLE_NOW_EXCEPTION)
-                )
+                if (response !== null
+                    && response.statusCode() == 201) {
+                    try {
+                        registryServiceImpl.registerInstanceTargets(launchedInstanceDTO, freeInstance)
+                    } catch (exc: RegistryException) {
+                        exc.printStackTrace()
+
+                        throw exc
+                    }
+                }
             }
 
             throw InstanceException(ErrorCode.ERR_INCONSISTENT_INSTANCE_STATE_EXCEPTION)

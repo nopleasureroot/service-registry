@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/instances")
 class InstanceController(val instanceServiceImpl: InstanceServiceImpl) {
     @PostMapping("/")
-    fun launchInstance(@RequestBody launchedInstanceDTO: LaunchedInstanceDTO): ResponseEntity<LaunchedInstanceDTO>? =
+    fun addTargetToInstance(@RequestBody launchedInstanceDTO: LaunchedInstanceDTO): ResponseEntity<LaunchedInstanceDTO>? =
         ResponseEntity(instanceServiceImpl.addTarget(launchedInstanceDTO), HttpStatus.CREATED)
 
 }
