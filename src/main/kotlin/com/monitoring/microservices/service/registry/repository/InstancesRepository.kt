@@ -9,5 +9,6 @@ import kotlin.collections.ArrayList
 
 @Repository
 interface InstancesRepository : JpaRepository<Instance, UUID> {
-    override fun findAll(): ArrayList<Instance>
+    fun findInstancesByStatusEquals(status: String): ArrayList<Instance>
+    fun findInstanceById(uuid: UUID): Instance
 }

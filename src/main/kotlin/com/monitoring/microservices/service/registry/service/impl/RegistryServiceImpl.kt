@@ -13,21 +13,24 @@ import com.monitoring.microservices.service.registry.service.RegistryService
 import com.monitoring.microservices.service.registry.util.ValidationUtils
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
 import java.util.*
 
 @Service
 class RegistryServiceImpl(
-    val instancesRepository: InstancesRepository,
-    val targetsRepository: TargetsRepository
+    private val instancesRepository: InstancesRepository,
+    private val targetsRepository: TargetsRepository
     ): RegistryService {
-    override fun registerInstance(registryBody: RegistryBody): RegisteredInstanceDTO {
+    override fun registerNewInstance(registryBody: RegistryBody): RegisteredInstanceDTO {
         try {
             val instanceUUID: UUID = UUID.randomUUID()
             instancesRepository.save(
                 Instance(
                     id = instanceUUID,
                     port = registryBody.port,
-                    path = registryBody.contextPath
+                    path = registryBody.contextPath,
+                    lastLaunch = LocalDateTime.now(),
+                    status = "ONLINE"
                 )
             )
 
@@ -49,4 +52,6 @@ class RegistryServiceImpl(
             throw RegistryException(ErrorCode.ERR_REGISTRY_INSTANCE_TARGETS_EXCEPTION)
         }
     }
+
+
 }

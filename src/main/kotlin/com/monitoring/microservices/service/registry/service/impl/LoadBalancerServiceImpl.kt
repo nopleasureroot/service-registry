@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service
 class LoadBalancerServiceImpl(val instancesRepository: InstancesRepository): LoadBalancerService {
     override fun findFreeInstance(): Instance? {
         try {
-            return instancesRepository.findAll().minByOrNull { it.targets.size }
+            return instancesRepository.findInstancesByStatusEquals("ONLINE").minByOrNull { it.targets.size }
         } catch (exc: Exception) {
             exc.printStackTrace()
 

@@ -6,6 +6,6 @@ import com.monitoring.microservices.service.registry.model.entity.Instance
 import com.monitoring.microservices.service.registry.model.request.RegistryBody
 
 interface RegistryService {
-    fun registerInstance(registryBody: RegistryBody): RegisteredInstanceDTO
+    fun registerNewInstance(registryBody: RegistryBody): RegisteredInstanceDTO
     fun registerInstanceTargets(launchedInstanceDTO: LaunchedInstanceDTO, instance: Instance)
 }
