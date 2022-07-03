@@ -23,18 +23,15 @@ class RegistryServiceImpl(
     ): RegistryService {
     override fun registerNewInstance(registryBody: RegistryBody): RegisteredInstanceDTO {
         try {
-            val instanceUUID: UUID = UUID.randomUUID()
-            instancesRepository.save(
-                Instance(
-                    id = instanceUUID,
-                    port = registryBody.port,
-                    path = registryBody.contextPath,
-                    lastLaunch = LocalDateTime.now(),
-                    status = "ONLINE"
-                )
+            val instance = Instance(
+                port = registryBody.port,
+                path = registryBody.contextPath,
+                lastLaunch = LocalDateTime.now(),
+                status = "ONLINE"
             )
+            instancesRepository.save(instance)
 
-            return RegisteredInstanceDTO(instanceUUID.toString())
+            return RegisteredInstanceDTO(instance.id.toString())
         } catch (exc: Exception) {
             exc.printStackTrace()
             throw RegistryException(ErrorCode.ERR_SAVE_INSTANCE_TO_DB_EXCEPTION)
